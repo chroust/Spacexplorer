@@ -1,0 +1,5 @@
+itch.io
+
+aseprite
+
+asi nějaká lehčí space exploration /  environmental systems hra, 2d grafika, vesmírná loď, okolní prostředí se kterým může interagovat, jelikož netušim jak obtížný by to mohlo být tak bych se rozhodl podle progresu jestli budu dělat třeba složitější game physics, pak nějaké puzzle mechanics spíš ve smyslu managementu paliva při různých omezujících podmínkách (to je jen příklad ale něco na ten smysl, ne že tam bude nějaká složitá storyline), taky asi s nějakou chunk generation či něčím podobným
