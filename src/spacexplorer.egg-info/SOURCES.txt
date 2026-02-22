@@ -1,8 +1,11 @@
 LICENSE
+MANIFEST.in
 README.md
 pyproject.toml
 requirements.txt
 src/space.py
+src/img/spaceship.png
+src/img/test_bg.jpg
 src/spacexplorer.egg-info/PKG-INFO
 src/spacexplorer.egg-info/SOURCES.txt
 src/spacexplorer.egg-info/dependency_links.txt
