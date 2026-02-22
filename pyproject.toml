@@ -1,0 +1,35 @@
+[project]
+name = "spacexplorer"
+version = "0.0.1"
+authors = [
+  { name=""Lukas Chroust et al.", email="chroulu24@sps-prosek.cz" },
+]
+
+description = "simple space exploration game"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+
+[project.scripts]
+space_game = "space:main"
+
+
+[project.urls]
+Homepage = "https://github.com/chroust/Spacexplorer"
+Issues = "https://seznam.cz"
+
+
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
