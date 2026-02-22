@@ -2,7 +2,7 @@
 name = "spacexplorer"
 version = "0.0.1"
 authors = [
-  { name=""Lukas Chroust et al.", email="chroulu24@sps-prosek.cz" },
+  { name="Lukas Chroust et al.", email="chroulu24@sps-prosek.cz" },
 ]
 
 description = "simple space exploration game"
