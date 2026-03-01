@@ -19,6 +19,9 @@ IMG_DIR = os.path.join(BASE_DIR, "img")
 seed = "seedyseed"
 chunk_size = 200
 
+
+    ############# design neni sry not sry ################
+
 def load_image(name):
     return pygame.image.load(os.path.join(IMG_DIR, name)).convert_alpha()
 
@@ -30,6 +33,10 @@ def create_ship_surface():
     surface = pygame.image.load(os.path.join(IMG_DIR, "spaceship.png")).convert_alpha()
 
     return surface
+
+
+    ############ kamera at vim kde jsem #############
+
 class Camera:
     def __init__(self, width, height):
         self.width = width
@@ -53,6 +60,9 @@ class Camera:
         sx = wx - self.x + self.width // 2
         sy = wy - self.y + self.height // 2
         return sx, sy
+    
+
+    ################# ship movement (a ostatni)###################
 
 class Ship:
     def __init__(self, image):
@@ -98,6 +108,7 @@ class Ship:
         rect = rotated.get_rect(center=screen_pos)
         screen.blit(rotated, rect)
 
+    ############### bg ###############
 
 class Background:
     def __init__(self, image):
@@ -112,6 +123,9 @@ class Background:
         for x in range(-1, WIN_WIDTH // self.width + 2):
             for y in range(-1, WIN_HEIGHT // self.height + 2):
                 screen.blit(self.image,(x * self.width + offset_x, y * self.height + offset_y)) 
+
+
+    ########### object generation ############
     
 class SpaceObject:
     def __init__(self, x, y, type):
@@ -170,9 +184,11 @@ class WorldManager:
                         obj.draw(screen, camera)
 
 
+    ############### main lop (kdo by to cekal ze)##################
+
 def main():
     ship_image = load_image("spaceship.png")
-    bg_image = load_image("test_bg.jpg")
+    bg_image = load_image("test_bg.jpg")            ################ to stock foto je docasne
 
     player = Ship(ship_image)
     background = Background(bg_image)
