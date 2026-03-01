@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: spacexplorer
+Version: 0.0.1
+Summary: simple space exploration game
+Author-email: "Lukas Chroust et al." <chroulu24@sps-prosek.cz>
+Project-URL: Homepage, https://github.com/chroust/Spacexplorer
+Project-URL: Issues, https://seznam.cz
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pygame-ce==2.5.6
+Dynamic: license-file
+
+# Spacexplorer
+
+ta takova funkce je "main"
