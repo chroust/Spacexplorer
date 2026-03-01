@@ -61,18 +61,22 @@ class Ship:
         self.vy = 0
 
         self.angle = 0
-        self.rotation_speed = 3
+        self.rotation_speed = 4
+        self.target_angle = 0
 
         self.thrust = 0.25
         self.friction = 0.98
 
         self.image = image
 
-    def update(self, keys):
+    def update(self, keys, unpress):
         if keys[pygame.K_a]:
-            self.angle -= self.rotation_speed
+            self.target_angle -= self.rotation_speed
         if keys[pygame.K_d]:
-            self.angle += self.rotation_speed
+            self.target_angle += self.rotation_speed
+
+
+        self.angle = self.angle + 0.035 *(self.target_angle - self.angle)
 
         if keys[pygame.K_w]:
             rad = math.radians(self.angle)
@@ -84,6 +88,7 @@ class Ship:
 
         self.vx *= self.friction
         self.vy *= self.friction
+
 
     def draw(self, screen, camera):
         rotated = pygame.transform.rotate(self.image, -self.angle -90)
@@ -125,9 +130,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYUP:
+                unpress = True
 
         keys = pygame.key.get_pressed()
-        player.update(keys)
+        unpress = pygame.key.get_just_released()
+        player.update(keys, unpress)
 
         camera.update()
 
