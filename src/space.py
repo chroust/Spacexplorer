@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(__file__)
 IMG_DIR = os.path.join(BASE_DIR, "img")
 
 seed = "seedyseed"
-chunk_size = 200
+chunk_size = 300
 
 
     ############# design neni sry not sry ################
