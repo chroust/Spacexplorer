@@ -17,10 +17,8 @@ BASE_DIR = os.path.dirname(__file__)
 IMG_DIR = os.path.join(BASE_DIR, "img")
 
 seed = "seedyseed"
-chunk_size = 300
+chunk_size = 2000
 
-
-    ############# design neni sry not sry ################
 
 def load_image(name):
     return pygame.image.load(os.path.join(IMG_DIR, name)).convert_alpha()
@@ -127,7 +125,7 @@ class Background:
 
     ########### object generation ############
     
-class SpaceObject:
+class dfSpaceObject:
     def __init__(self, x, y, type):
         self.world_x = x
         self.world_y = y
@@ -163,7 +161,7 @@ class WorldManager:
         if random.random() < 0.20:
             obj_x = cx * self.chunk_size + random.randint(0, self.chunk_size)
             obj_y = cy * self.chunk_size + random.randint(0, self.chunk_size)
-            objects_in_chunk.append(SpaceObject(obj_x, obj_y, "object"))
+            objects_in_chunk.append(dfSpaceObject(obj_x, obj_y, "object"))
 
         self.generated_chunks[(cx, cy)] = objects_in_chunk
 
