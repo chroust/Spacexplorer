@@ -3,8 +3,6 @@ import math
 import os
 import random
 
-pygame.init()
-
 WIN_WIDTH, WIN_HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Space Game")
@@ -171,6 +169,7 @@ class WorldManager:
 
 
 def main():
+    pygame.init()
     ship_image = load_image("spaceship.png")
     bg_image = load_image("test_bg.jpg")
 
