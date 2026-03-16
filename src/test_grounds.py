@@ -38,7 +38,7 @@ def run_test_grounds():
 
         Border(BORDER_WIDTH, BORDER_HEIGHT)
 
-        print(player.world_x)
+        print(player.world_x, player.world_y)
 
         keys = pygame.key.get_pressed()
         unpress = pygame.key.get_just_released()

@@ -5,9 +5,9 @@ class Ship:
     def __init__(self, image):
         self.world_x, self.world_y = 0, 0
         self.vx, self.vy = 0, 0
-        self.angle = 0
+        self.angle = -90
         self.rotation_speed = 4
-        self.target_angle = 0
+        self.target_angle = -90
         self.thrust = 0.25
         self.friction = 0.98
         self.image = image
