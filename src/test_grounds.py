@@ -4,9 +4,11 @@ import utils
 import engine
 import entities
 
-BORDER_WIDTH, BORDER_HEIGHT = 1260, 700
-set_x = 20
-set_y = 100
+BORDER_WIDTH = 1260
+BORDER_HEIGHT = 700
+set_x = 300
+set_y = 0
+rotate = 90
 
 class Border:
     def __init__(self, BORDER_WIDTH, BORDER_HEIGHT, screen):
@@ -50,6 +52,9 @@ def run_test_grounds():
     player = entities.Ship(ship_image)
     camera = engine.Camera(1280, 720)
 
+    config = Configure(player) 
+    border = Border(BORDER_WIDTH, BORDER_HEIGHT, screen)
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -73,8 +78,6 @@ def run_test_grounds():
         player.update(keys, unpress)
         screen.fill((0, 0, 0))
         player.draw(screen, camera)
-        border = Border(BORDER_WIDTH, BORDER_HEIGHT, screen)
-        config = Configure(player)
         border.touch(player, BORDER_WIDTH, BORDER_HEIGHT)
 
 
@@ -82,6 +85,7 @@ def run_test_grounds():
         clock.tick(180)
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     run_test_grounds()
