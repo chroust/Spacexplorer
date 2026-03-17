@@ -5,6 +5,8 @@ import engine
 import entities
 
 BORDER_WIDTH, BORDER_HEIGHT = 1260, 700
+set_x = 20
+set_y = 100
 
 class Border:
     def __init__(self, BORDER_WIDTH, BORDER_HEIGHT, screen):
@@ -33,7 +35,10 @@ class Border:
             player.world_y = -limit_y + ship_h // 2
             player.vy = 0.5
         
-
+class Configure:
+    def __init__(self, player):
+        player.world_x = set_x
+        player.world_y = set_y
 
 
 def run_test_grounds():
@@ -69,6 +74,7 @@ def run_test_grounds():
         screen.fill((0, 0, 0))
         player.draw(screen, camera)
         border = Border(BORDER_WIDTH, BORDER_HEIGHT, screen)
+        config = Configure(player)
         border.touch(player, BORDER_WIDTH, BORDER_HEIGHT)
 
 
