@@ -15,10 +15,11 @@ def main():
 
     player = entities.Ship(ship_img)
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
-    camera.follow(player) # camera to the player instance
+    camera.follow(player)
     
     background = engine.Background(bg_img, WIN_WIDTH, WIN_HEIGHT)
     world = engine.WorldManager(2000, "seedyseed", entities.dfSpaceObject)
+    minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT)
 
     running = True
     while running:
@@ -42,6 +43,7 @@ def main():
         background.draw(screen, camera)
         world.draw(screen, camera)
         player.draw(screen, camera)
+        minimap.draw(screen, world, player)
 
         pygame.display.flip()
 

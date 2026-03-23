@@ -12,7 +12,11 @@ rotate = 90
 
 class Border:
     def __init__(self, BORDER_WIDTH, BORDER_HEIGHT, screen):
-        pygame.draw.rect(screen, (255, 0, 0), (10, 10, BORDER_WIDTH, BORDER_HEIGHT), 5)
+        self.width = BORDER_WIDTH
+        self.height = BORDER_HEIGHT
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, (150, 0, 0), (10, 10, self.width, self.height), 5)
 
     def touch(self, player, BORDER_WIDTH, BORDER_HEIGHT):
         ship_w = player.image.get_width()
@@ -78,6 +82,7 @@ def run_test_grounds():
         player.update(keys, unpress)
         screen.fill((0, 0, 0))
         player.draw(screen, camera)
+        border.draw(screen)
         border.touch(player, BORDER_WIDTH, BORDER_HEIGHT)
 
 
