@@ -1,6 +1,6 @@
 import pygame
 import random
-import engine
+import entities
 
 class Camera:
     def __init__(self, width, height):
@@ -35,12 +35,13 @@ class Background:
                 screen.blit(self.image, (x * self.width + offset_x, y * self.height + offset_y))
 
 class Minimap:
-    def __init__(self, width, height):
+    def __init__(self, width, height, ship_img):
         minimap_scale = 0.15
         self.minimap_height = height * minimap_scale
         self.minimap_width = width * minimap_scale
         self.pos_x, self.pos_y = 15, 15
         self.zoom = 0.05
+        self.ship_img = pygame.transform.scale(ship_img, (9, 15))
 
     def draw(self, screen, world_instance, player):
         pygame.draw.rect(screen, (20, 20, 20), (15 ,15, self.minimap_width, self.minimap_height))
@@ -60,6 +61,10 @@ class Minimap:
                 if (self.pos_x < minimap_x < self.pos_x + self.minimap_width and 
                     self.pos_y < minimap_y < self.pos_y + self.minimap_height):
                     pygame.draw.circle(screen, (0, 255, 0), (int(minimap_x), int(minimap_y)), (obj.size * self.zoom))
+
+        rotated_ship = pygame.transform.rotate(self.ship_img, -player.angle - 90)
+        ship_rect = rotated_ship.get_rect(center=(minimap_center_x, minimap_center_y))
+        screen.blit(rotated_ship, ship_rect)
 
 
 

@@ -3,11 +3,15 @@ import utils
 import entities
 import engine
 
+WIN_WIDTH, WIN_HEIGHT = 1280, 720
+
+seed = "seedyseed"
+
+
 def main():
     pygame.init()
-    WIN_WIDTH, WIN_HEIGHT = 1280, 720
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    pygame.display.set_caption("Space Game - Modular Edition")
+    pygame.display.set_caption("Space Game")
     clock = pygame.time.Clock()
 
     ship_img = utils.load_image("spaceship.png")
@@ -18,8 +22,8 @@ def main():
     camera.follow(player)
     
     background = engine.Background(bg_img, WIN_WIDTH, WIN_HEIGHT)
-    world = engine.WorldManager(2000, "seedyseed", entities.dfSpaceObject)
-    minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT)
+    world = engine.WorldManager(2000, seed, entities.dfSpaceObject)
+    minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT, ship_img)
 
     running = True
     while running:

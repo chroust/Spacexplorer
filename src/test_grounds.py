@@ -1,8 +1,8 @@
 import pygame
-import main
 import utils
 import engine
 import entities
+from main import WIN_WIDTH, WIN_HEIGHT
 
 BORDER_WIDTH = 1260
 BORDER_HEIGHT = 700
@@ -49,12 +49,14 @@ class Configure:
 
 def run_test_grounds():
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
 
     ship_image = utils.load_image("spaceship.png")
     player = entities.Ship(ship_image)
-    camera = engine.Camera(1280, 720)
+    camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
+    world = engine.WorldManager(2000, "seedyseed", entities.dfSpaceObject)
+    minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT)
 
     config = Configure(player) 
     border = Border(BORDER_WIDTH, BORDER_HEIGHT, screen)
@@ -84,6 +86,7 @@ def run_test_grounds():
         player.draw(screen, camera)
         border.draw(screen)
         border.touch(player, BORDER_WIDTH, BORDER_HEIGHT)
+        minimap.draw(screen, world, player)
 
 
         pygame.display.flip()
