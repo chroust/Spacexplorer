@@ -43,3 +43,12 @@ class dfSpaceObject:
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
         pygame.draw.circle(screen, (0, 255, 0), screen_pos, self.size)
+
+class planet:
+    def __init__(self, x, y):
+        self.size = 300
+        self.world_x, self.world_y = x, y
+
+    def draw(self, screen, camera):
+        screen_pos = camera.apply((self.world_x, self.world_y))
+        pygame.draw.circle(screen, (0, 100, 255), screen_pos, self.size)
