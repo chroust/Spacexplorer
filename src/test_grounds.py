@@ -6,24 +6,27 @@ from main import WIN_WIDTH, WIN_HEIGHT
 
 BORDER_WIDTH = 1260
 BORDER_HEIGHT = 700
-set_x = 300
+set_x = 0
 set_y = 0
 rotate = 90
 
 class Border:
-    def __init__(self, BORDER_WIDTH, BORDER_HEIGHT, screen):
+    def __init__(self, BORDER_WIDTH, BORDER_HEIGHT):
         self.width = BORDER_WIDTH
         self.height = BORDER_HEIGHT
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (150, 0, 0), (10, 10, self.width, self.height), 5)
+    def draw(self, screen, camera):
+        world_left = -self.width // 2
+        world_top = -self.height // 2
+        screen_left, screen_top = camera.apply((world_left, world_top))
+        pygame.draw.rect(screen, (150, 0, 0), (screen_left, screen_top, self.width, self.height), 5)
 
-    def touch(self, player, BORDER_WIDTH, BORDER_HEIGHT):
+    def touch(self, player):
         ship_w = player.image.get_width()
         ship_h = player.image.get_height()
         
-        limit_x = BORDER_WIDTH // 2
-        limit_y = BORDER_HEIGHT // 2
+        limit_x = self.width // 2
+        limit_y = self.height // 2
 
         if player.world_x >= limit_x - ship_w // 2:
             player.world_x = limit_x - ship_w // 2
@@ -59,7 +62,7 @@ def run_test_grounds():
     minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
 
     config = Configure(player) 
-    border = Border(BORDER_WIDTH, BORDER_HEIGHT, screen)
+    border = Border(BORDER_WIDTH, BORDER_HEIGHT)
 
     # Object spawning
     object_types = [entities.dfSpaceObject, entities.planet]
@@ -72,34 +75,35 @@ def run_test_grounds():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t:  # Cycle through object types
+                if event.key == pygame.K_t:
                     current_type_index = (current_type_index + 1) % len(object_types)
                     print(f"Selected object: {object_types[current_type_index].__name__}")
-                elif event.key == pygame.K_s:  # Spawn object
+
+                elif event.key == pygame.K_s:
                     obj_class = object_types[current_type_index]
                     if obj_class == entities.dfSpaceObject:
-                        new_obj = obj_class(player.world_x + 100, player.world_y, "test")
+                        new_obj = obj_class(0, 0, "test")
                     elif obj_class == entities.planet:
-                        new_obj = obj_class(player.world_x + 100, player.world_y)
+                        new_obj = obj_class(0, 0)
                     spawned_objects.append(new_obj)
-                    print(f"Spawned {obj_class.__name__}")
-                elif event.key == pygame.K_c:  # Clear spawned objects
+                    print(f"Spawned {obj_class.__name__} at border center (0,0)")
+
+                elif event.key == pygame.K_c:
                     spawned_objects.clear()
                     print("Cleared all spawned objects")
 
         clock.tick(60)
 
         keys = pygame.key.get_pressed()
-        player.update(keys, False)  # Assuming unpress not needed here
+        player.update(keys, False)
         screen.fill((0, 0, 0))
         player.draw(screen, camera)
 
-        # Draw spawned objects
         for obj in spawned_objects:
             obj.draw(screen, camera)
 
-        border.draw(screen)
-        border.touch(player, BORDER_WIDTH, BORDER_HEIGHT)
+        border.draw(screen, camera)
+        border.touch(player)
 
         pygame.display.flip()
         clock.tick(180)
