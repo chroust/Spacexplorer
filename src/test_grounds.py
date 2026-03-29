@@ -6,7 +6,7 @@ from main import WIN_WIDTH, WIN_HEIGHT
 
 BORDER_WIDTH = 1260
 BORDER_HEIGHT = 700
-set_x = 0
+set_x = 300
 set_y = 0
 rotate = 90
 
@@ -50,6 +50,29 @@ class Configure:
         player.world_y = set_y
 
 
+class TypeDisplay:
+    def __init__(self, x=BORDER_WIDTH//2, y=10):
+        self.x = x
+        self.y = y
+        self.font = pygame.font.Font(None, 32)
+        self.current_type = None
+        self.text_surface = None
+        self.text_rect = None
+
+    def update(self, object_type):
+        self.current_type = object_type
+        self.text_surface = self.font.render(f"Selected: {object_type.__name__}", True, (0, 255, 0))
+        self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
+
+    def draw(self, screen):
+        if self.text_surface:
+            background = pygame.Surface((self.text_rect.width + 10, self.text_rect.height + 6))
+            background.set_alpha(150)
+            background.fill((0, 0, 0))
+            screen.blit(background, (self.text_rect.left - 5, self.text_rect.top - 3))
+            screen.blit(self.text_surface, self.text_rect)
+
+
 def run_test_grounds():
     pygame.init()
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -63,11 +86,14 @@ def run_test_grounds():
 
     config = Configure(player) 
     border = Border(BORDER_WIDTH, BORDER_HEIGHT)
+    type_display = TypeDisplay()
+    gravity = engine.Gravity(1.0)
 
     # Object spawning
     object_types = [entities.dfSpaceObject, entities.planet]
     current_type_index = 0
     spawned_objects = []
+    type_display.update(object_types[current_type_index])
 
     running = True
     while running:
@@ -77,6 +103,7 @@ def run_test_grounds():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     current_type_index = (current_type_index + 1) % len(object_types)
+                    type_display.update(object_types[current_type_index])
                     print(f"Selected object: {object_types[current_type_index].__name__}")
 
                 elif event.key == pygame.K_s:
@@ -96,6 +123,10 @@ def run_test_grounds():
 
         keys = pygame.key.get_pressed()
         player.update(keys, False)
+        
+        for obj in spawned_objects:
+            gravity.apply_to_player(obj, player)
+        
         screen.fill((0, 0, 0))
         player.draw(screen, camera)
 
@@ -104,6 +135,7 @@ def run_test_grounds():
 
         border.draw(screen, camera)
         border.touch(player)
+        type_display.draw(screen)
 
         pygame.display.flip()
         clock.tick(180)

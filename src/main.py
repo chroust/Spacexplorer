@@ -24,6 +24,7 @@ def main():
     background = engine.Background(bg_img, WIN_WIDTH, WIN_HEIGHT)
     world = engine.WorldManager(2000, seed, entities.dfSpaceObject)
     minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT, ship_img)
+    gravity = engine.Gravity(1.0)
 
     running = True
     while running:
@@ -42,6 +43,10 @@ def main():
         player.update(keys, unpress)
         camera.update()
         world.update(player.world_x, player.world_y)
+        
+        for object_list in world.generated_chunks.values():
+            for obj in object_list:
+                gravity.apply_to_player(obj, player)
 
         screen.fill((0, 0, 0))
         background.draw(screen, camera)

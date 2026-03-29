@@ -1,6 +1,7 @@
 import pygame
 import random
 import entities
+import math
 
 class Camera:
     def __init__(self, width, height):
@@ -67,14 +68,12 @@ class Minimap:
         screen.blit(rotated_ship, ship_rect)
 
 
-
-
 class WorldManager:
     def __init__(self, chunk_size, seed, object_class):
         self.chunk_size = chunk_size
         self.generated_chunks = {}
         self.world_seed = seed
-        self.object_class = object_class # pass deafult object
+        self.object_class = object_class # pass deafult object here
 
     def get_chunk_coords(self, wx, wy):
         return int(wx // self.chunk_size), int(wy // self.chunk_size)
@@ -102,3 +101,24 @@ class WorldManager:
                 if (x, y) in self.generated_chunks:
                     for obj in self.generated_chunks[(x, y)]:
                         obj.draw(screen, camera)
+
+
+class Gravity:
+    def __init__(self, strenght):
+        self.strenght = strenght
+    
+    def apply_to_player(self, gravity_object, player):
+        """Apply gravity from an object to the player if within range"""
+        dist_x = gravity_object.world_x - player.world_x
+        dist_y = gravity_object.world_y - player.world_y
+        distance = math.sqrt(dist_x**2 + dist_y**2)
+        
+        if distance < gravity_object.gravity_range:
+            if distance > 0:
+                dir_x = dist_x / distance
+                dir_y = dist_y / distance
+                
+                force = gravity_object.gravity / max(1, distance * 0.01)
+                
+                player.vx += dir_x * force * 0.01
+                player.vy += dir_y * force * 0.01

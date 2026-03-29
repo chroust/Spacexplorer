@@ -39,6 +39,8 @@ class dfSpaceObject:
         self.world_x, self.world_y = x, y
         self.type = type
         self.size = 20
+        self.gravity = 0.5
+        self.gravity_range = 500
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
@@ -46,8 +48,10 @@ class dfSpaceObject:
 
 class planet:
     def __init__(self, x, y):
-        self.size = 300
+        self.size = 200
         self.world_x, self.world_y = x, y
+        self.gravity = 2.0
+        self.gravity_range = 1000
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
