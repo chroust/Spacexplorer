@@ -1,10 +1,53 @@
 # Spacexplorer
 
-<<<<<<< Updated upstream
-=======
-itch.io
+Jednoduchá space exploration hra ve 2D
 
-aseprite
+### requirements:
+- Python 3.8+
+- Pygame-ce (obsaženo v `requirements.txt`)
 
-asi nějaká lehčí space exploration /  environmental systems hra, 2d grafika, vesmírná loď, okolní prostředí se kterým může interagovat, jelikož netušim jak obtížný by to mohlo být tak bych se rozhodl podle progresu jestli budu dělat třeba složitější game physics, pak nějaké puzzle mechanics spíš ve smyslu managementu paliva při různých omezujících podmínkách (to je jen příklad ale něco na ten smysl, ne že tam bude nějaká složitá storyline), taky asi s nějakou chunk generation či něčím podobným
->>>>>>> Stashed changes
+### Setup:
+
+1. Stáhni repo a jdi do složky:
+
+cd Spacexplorer
+
+
+2. Nainstalovat dependence:
+
+pip install -r requirements.txt
+
+
+Pokud nefunguje:
+
+pip install pygame-ce
+
+
+### Spuštění:
+
+V main game:
+
+python src/main.py
+
+
+V test_grounds (lze spawnovat objekty):
+
+python src/test_grounds.py
+
+
+## Ovládání
+
+**Hlavní hra:**
+- `W` - dopředu
+- `A` / `D` - otáčí lodí
+
+**Test grounds:**
+- `W` - dopředu
+- `A` / `D` - otáčí lodi
+- `T` - switch mezi objekty k spawnování (je vidět v top middle který je vybarný)
+- `S` - spawn objektu na pozici (0,0)
+- `C` - smaže všechny spawnnuté objekty
+
+
+Hra je ještě v průběhu vývoje.
+
