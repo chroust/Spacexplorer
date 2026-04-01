@@ -36,11 +36,11 @@ class Ship:
 
 class dfSpaceObject:
     def __init__(self, x, y, type):
-        self.world_x, self.world_y = x, y
         self.type = type
         self.size = 20
         self.gravity = 0.5
         self.gravity_range = 500
+        self.world_x, self.world_y = x, y
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
@@ -49,10 +49,21 @@ class dfSpaceObject:
 class planet:
     def __init__(self, x, y):
         self.size = 200
-        self.world_x, self.world_y = x, y
-        self.gravity = 2.0
+        self.gravity = 2
         self.gravity_range = 1000
+        self.world_x, self.world_y = x, y
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
         pygame.draw.circle(screen, (0, 100, 255), screen_pos, self.size)
+
+class asteriod:
+    def __init__(self, x ,y):
+        self.size = 25
+        self.gravity = 0
+        self.gravity_range = 0
+        self.world_x, self.world_y = x, y
+
+    def draw(self, screen, camera):
+        screen_pos = camera.apply((self.world_x, self.world_y))
+        pygame.draw.circle(screen, (168, 104, 0), screen_pos, self.size)

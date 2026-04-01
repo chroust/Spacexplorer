@@ -90,7 +90,7 @@ def run_test_grounds():
     gravity = engine.Gravity(1.0)
 
     # Object spawning
-    object_types = [entities.dfSpaceObject, entities.planet]
+    object_types = [entities.dfSpaceObject, entities.planet, entities.asteriod]
     current_type_index = 0
     spawned_objects = []
     type_display.update(object_types[current_type_index])
@@ -111,6 +111,8 @@ def run_test_grounds():
                     if obj_class == entities.dfSpaceObject:
                         new_obj = obj_class(0, 0, "test")
                     elif obj_class == entities.planet:
+                        new_obj = obj_class(0, 0)
+                    elif obj_class == entities.asteriod:
                         new_obj = obj_class(0, 0)
                     spawned_objects.append(new_obj)
                     print(f"Spawned {obj_class.__name__} at border center (0,0)")
