@@ -108,7 +108,6 @@ class Gravity:
         self.strenght = strenght
     
     def apply_to_player(self, gravity_object, player):
-        """Apply gravity from an object to the player if within range"""
         dist_x = gravity_object.world_x - player.world_x
         dist_y = gravity_object.world_y - player.world_y
         distance = math.sqrt(dist_x**2 + dist_y**2)
