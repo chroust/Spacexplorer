@@ -36,8 +36,8 @@ class Ship:
         screen.blit(rotated, rect)
 
 class dfSpaceObject:
-    def __init__(self, x, y, type, mask=None):
-        self.type = type
+    def __init__(self, x, y, mask=None):
+        self.type = "dfSpaceObject"
         self.size = 20
         self.gravity = 0.5
         self.gravity_range = 500
@@ -50,6 +50,7 @@ class dfSpaceObject:
 
 class planet:
     def __init__(self, x, y, mask=None):
+        self.type = "planet"
         self.size = 200
         self.gravity = 2
         self.gravity_range = 1000
@@ -62,6 +63,7 @@ class planet:
 
 class asteriod:
     def __init__(self, x ,y, mask=None):
+        self.type = "asteroid"
         self.size = 25
         self.gravity = 0
         self.gravity_range = 0

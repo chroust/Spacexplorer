@@ -23,7 +23,12 @@ def main():
     camera.follow(player)
     
     background = engine.Background(bg_img, WIN_WIDTH, WIN_HEIGHT)
-    world = engine.WorldManager(2000, seed, entities.dfSpaceObject)
+    object_types = [
+        (entities.dfSpaceObject, 0.5),  # 50% chance
+        (entities.planet, 0.2),         # 20% chance
+        (entities.asteriod, 0.3)        # 30% chance
+    ]
+    world = engine.WorldManager(2000, seed, object_types)
     minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT, ship_img)
     gravity = engine.Gravity(1.0)
     collision_checker = engine.CollisionChecker()

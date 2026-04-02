@@ -81,7 +81,12 @@ def run_test_grounds():
     ship_img = utils.load_image("spaceship.png")
     player = entities.Ship(ship_img)
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
-    world = engine.WorldManager(2000, "seedyseed", entities.dfSpaceObject)
+    object_types = [
+        # (entities.dfSpaceObject, 0.5),      nechci aby se mi tam nic automaticky spawnovalo, ale mam tu moznost
+        # (entities.planet, 0.2),
+        # (entities.asteriod, 0.3)
+    ]
+    world = engine.WorldManager(2000, "seedyseed", object_types)
     minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
 
     config = Configure(player) 

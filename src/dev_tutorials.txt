@@ -1,0 +1,51 @@
+random ahh navody jak rozsirovat kod:
+
+od ai cuz sem linej to psat sam ale az to otevru za 2 tydny budu si pamatovat hovno
+
+
+--------new space object creation-----------
+
+## Step 1: Ensure Your Class is Defined in `entities.py`
+Your new class should already be in `src/entities.py`, following the pattern of existing objects like `dfSpaceObject`, `planet`, and `asteroid`.
+
+- **Required `__init__` method**: `def __init__(self, x, y, mask=None):`
+  - Set attributes: `self.type = "newobject"` (use a unique string for identification).
+  - Set properties: `self.size`, `self.gravity`, `self.gravity_range`, `self.world_x = x`, `self.world_y = y`, `self.mask = mask`.
+- **Required `draw` method**: `def draw(self, screen, camera):`
+  - Draw the object on screen, e.g., `pygame.draw.circle(screen, (color_tuple), screen_pos, self.size)`.
+- If the class isn't in `entities.py` yet, add it at the end of the file.
+- No further changes needed here if the class is complete and follows this structure.
+
+## Step 2: Add It to the Object Types List (in `main.py` and `test_grounds.py` pro test grounds ani ne pac tam to spawnuju hlavne manualne ale je tam ta moznost)
+This step tells the game which objects can spawn procedurally and with what probabilities. For test grounds, it also enables manual spawning.
+
+- **In `src/main.py`** (around lines 23-27 at the time of writing ts):
+  - Locate the `object_types` list.
+  - Add your new class with a probability: `object_types = [(entities.dfSpaceObject, 0.4), (entities.planet, 0.2), (entities.asteriod, 0.2), (entities.NewObject, 0.2)]`
+  - Adjust existing probabilities so they sum to 1.0 (e.g., reduce others to make room for the new one).
+- **In `src/test_grounds.py`** (around lines 83-87 for procedural, and around line 95 for manual at the time of writing ts):
+  - Update the procedural `object_types` list identically to `main.py` (if you want procedural spawning in test grounds).
+  - For manual spawning: Add your new class to the `object_types` list around line 95: `object_types = [entities.dfSpaceObject, entities.planet, entities.asteriod, entities.NewObject]`
+  - In the spawning logic (around lines 105-115), add a case: `elif obj_class == entities.NewObject: new_obj = obj_class(0, 0)`
+- **Why?** The `WorldManager` uses the tuple list for procedural spawning. The class list allows cycling and spawning objects manually in test grounds (press T to cycle types, S to spawn at center).
+
+## Step 3: Update the Minimap Colors (in `engine.py`)
+The minimap displays objects in different colors based on their `type` attribute.
+
+- **In `src/engine.py`**, in the `Minimap.draw` method (around lines 60-70 at the time of writing ts):
+  - Add a color condition for your new type: `elif obj.type == "newobject": color = (255, 0, 255)  # e.g., magenta`
+  - Choose an RGB tuple for the color (values 0-255).
+- If you skip this, the object will default to white on the minimap, which is functional but less visually distinct.
+- **Why?** Ensures the new object appears with a unique color on the minimap for better navigation.
+
+## Step 4: Test and Tweak (Optional but Recommended)
+Verify everything works and make adjustments as needed.
+
+- Run the game: `python src/main.py`
+- Fly around the world to check if the new object spawns in chunks.
+- Verify the minimap shows the correct color.
+- For debugging:
+  - Check collisions or gravity issues by printing `obj.type` in the console (e.g., in the collision checker).
+  - Ensure no errors occur during spawning or rendering.
+- No other files require changes—the gravity, collision, and drawing systems automatically use the class's properties (like `size`, `gravity`, etc.).
+

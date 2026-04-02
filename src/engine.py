@@ -61,7 +61,15 @@ class Minimap:
 
                 if (self.pos_x < minimap_x < self.pos_x + self.minimap_width and 
                     self.pos_y < minimap_y < self.pos_y + self.minimap_height):
-                    pygame.draw.circle(screen, (0, 255, 0), (int(minimap_x), int(minimap_y)), (obj.size * self.zoom))
+                    if obj.type == "dfSpaceObject":
+                        color = (0, 255, 0)  # green
+                    elif obj.type == "planet":
+                        color = (0, 100, 255)  # blue
+                    elif obj.type == "asteroid":
+                        color = (168, 104, 0)  # brown
+                    else:
+                        color = (255, 255, 255)  # white for unknown
+                    pygame.draw.circle(screen, color, (int(minimap_x), int(minimap_y)), max(1, obj.size * self.zoom))
 
         rotated_ship = pygame.transform.rotate(self.ship_img, -player.angle - 90)
         ship_rect = rotated_ship.get_rect(center=(minimap_center_x, minimap_center_y))
@@ -69,11 +77,11 @@ class Minimap:
 
 
 class WorldManager:
-    def __init__(self, chunk_size, seed, object_class):
+    def __init__(self, chunk_size, seed, object_types):
         self.chunk_size = chunk_size
         self.generated_chunks = {}
         self.world_seed = seed
-        self.object_class = object_class # pass deafult object here
+        self.object_types = object_types
 
     def get_chunk_coords(self, wx, wy):
         return int(wx // self.chunk_size), int(wy // self.chunk_size)
@@ -82,10 +90,27 @@ class WorldManager:
         if (cx, cy) in self.generated_chunks: return
         random.seed(f"{self.world_seed}_{cx}_{cy}")
         objects = []
-        if random.random() < 0.20:
-            obj_x = cx * self.chunk_size + random.randint(0, self.chunk_size)
-            obj_y = cy * self.chunk_size + random.randint(0, self.chunk_size)
-            objects.append(self.object_class(obj_x, obj_y, "object"))
+        for _ in range(3):
+            if random.random() < 0.15:  # 15% sance (3 pokusy, realna sance je trochu mensi pac kdyby se mel spawnout v jinem objektu tak ho proste nespawnu}
+                obj_x = cx * self.chunk_size + random.randint(0, self.chunk_size)
+                obj_y = cy * self.chunk_size + random.randint(0, self.chunk_size)
+                rand = random.random()
+                cumulative = 0      # vyber space objekt na zaklade sanci
+                for obj_class, prob in self.object_types:
+                    cumulative += prob
+                    if rand < cumulative:
+                        new_obj = obj_class(obj_x, obj_y) 
+                        overlaps = False
+                        for existing_obj in objects:
+                            dx = new_obj.world_x - existing_obj.world_x
+                            dy = new_obj.world_y - existing_obj.world_y
+                            distance = math.sqrt(dx**2 + dy**2)
+                            if distance < (new_obj.size + existing_obj.size):
+                                overlaps = True
+                                break
+                        if not overlaps:
+                            objects.append(new_obj)
+                        break
         self.generated_chunks[(cx, cy)] = objects
 
     def update(self, player_x, player_y):
