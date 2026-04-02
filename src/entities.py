@@ -2,7 +2,7 @@ import pygame
 import math
 
 class Ship:
-    def __init__(self, image):
+    def __init__(self, image, mask):
         self.world_x, self.world_y = 0, 0
         self.vx, self.vy = 0, 0
         self.angle = -90
@@ -11,6 +11,7 @@ class Ship:
         self.thrust = 0.25
         self.friction = 0.98
         self.image = image
+        self.mask = mask
 
     def update(self, keys, unpress):
         if keys[pygame.K_a]: self.target_angle -= self.rotation_speed
@@ -35,34 +36,37 @@ class Ship:
         screen.blit(rotated, rect)
 
 class dfSpaceObject:
-    def __init__(self, x, y, type):
+    def __init__(self, x, y, type, mask=None):
         self.type = type
         self.size = 20
         self.gravity = 0.5
         self.gravity_range = 500
         self.world_x, self.world_y = x, y
+        self.mask = mask
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
         pygame.draw.circle(screen, (0, 255, 0), screen_pos, self.size)
 
 class planet:
-    def __init__(self, x, y):
+    def __init__(self, x, y, mask=None):
         self.size = 200
         self.gravity = 2
         self.gravity_range = 1000
         self.world_x, self.world_y = x, y
+        self.mask = mask
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))
         pygame.draw.circle(screen, (0, 100, 255), screen_pos, self.size)
 
 class asteriod:
-    def __init__(self, x ,y):
+    def __init__(self, x ,y, mask=None):
         self.size = 25
         self.gravity = 0
         self.gravity_range = 0
         self.world_x, self.world_y = x, y
+        self.mask = mask
 
     def draw(self, screen, camera):
         screen_pos = camera.apply((self.world_x, self.world_y))

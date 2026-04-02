@@ -14,10 +14,11 @@ def main():
     pygame.display.set_caption("Space Game")
     clock = pygame.time.Clock()
 
-    ship_img = utils.load_image("spaceship.png")
+    ship_img, ship_mask = utils.load_image_with_mask("spaceship.png")
     bg_img = utils.load_image("test_bg.jpg")
 
-    player = entities.Ship(ship_img)
+    player = entities.Ship(ship_img, ship_mask)
+
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
     camera.follow(player)
     
@@ -25,6 +26,7 @@ def main():
     world = engine.WorldManager(2000, seed, entities.dfSpaceObject)
     minimap = engine.Minimap(WIN_WIDTH,WIN_HEIGHT, ship_img)
     gravity = engine.Gravity(1.0)
+    collision_checker = engine.CollisionChecker()
 
     running = True
     while running:
@@ -47,6 +49,7 @@ def main():
         for object_list in world.generated_chunks.values():
             for obj in object_list:
                 gravity.apply_to_player(obj, player)
+                collision_checker.check_collision(player, obj)
 
         screen.fill((0, 0, 0))
         background.draw(screen, camera)

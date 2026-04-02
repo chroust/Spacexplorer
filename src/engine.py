@@ -121,3 +121,33 @@ class Gravity:
                 
                 player.vx += dir_x * force * 0.01
                 player.vy += dir_y * force * 0.01
+
+class CollisionChecker:
+    def __init__(self):
+        self.collision_pairs = []
+    
+    def check_collision(self, sprite1, sprite2):
+        if sprite1.mask is None or sprite2.mask is None:
+            return False
+
+        offset_x = int(sprite1.world_x - sprite2.world_x)
+        offset_y = int(sprite1.world_y - sprite2.world_y)
+
+        collision_point = sprite1.mask.overlap(sprite2.mask, (offset_x, offset_y))
+        
+        if collision_point is not None:
+            self.collision_pairs.append((sprite1, sprite2))
+            return True
+        
+        return False
+    
+    def get_collisions(self):
+        pairs = self.collision_pairs.copy()
+        self.collision_pairs.clear()
+        return pairs
+    
+    # if collision_checker.check_collision(player, obj):
+    #     print(f"Player hit {obj.type}")
+    #
+    #     if obj.type = "objekt kterej si vyberu":
+    #       player.nejaka_funkce()   "napr uber hp"
