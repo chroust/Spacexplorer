@@ -38,15 +38,18 @@ python src/test_grounds.py
 ## Ovládání
 
 **Hlavní hra:**
-- `W` - dopředu
-- `A` / `D` - otáčí lodí
+- W - dopředu
+- A / D - otáčí lodí
+- TAB - toggle upgrade menu
+- ESC - pause
+- UP/DOWN ARROWS - choose menu options
 
-**Test grounds:**
-- `W` - dopředu
-- `A` / `D` - otáčí lodi
-- `T` - switch mezi objekty k spawnování (je vidět v top middle který je vybarný)
-- `S` - spawn objektu na pozici (0,0)
-- `C` - smaže všechny spawnnuté objekty
+**Test grounds:** (nefunguje rn)
+- W - dopředu
+- A / D - otáčí lodi
+- T - switch mezi objekty k spawnování (je vidět v top middle který je vybarný)
+- S - spawn objektu na pozici (0,0)
+- C - smaže všechny spawnnuté objekty
 
 
 Hra je ještě v průběhu vývoje.

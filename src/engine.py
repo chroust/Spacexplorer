@@ -53,6 +53,7 @@ class Minimap:
         for object_list in world_instance.generated_chunks.values():
             for obj in object_list:
                 #pos realtive to player
+                
                 rel_x = (obj.world_x - player.world_x) * self.zoom
                 rel_y = (obj.world_y - player.world_y) * self.zoom
 
