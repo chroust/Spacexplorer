@@ -49,3 +49,15 @@ Verify everything works and make adjustments as needed.
   - Ensure no errors occur during spawning or rendering.
 - No other files require changes—the gravity, collision, and drawing systems automatically use the class's properties (like `size`, `gravity`, etc.).
 
+
+
+dalsi progress:
+  test grounds up to date 
+
+  collisions interactions
+
+  gravity Update
+
+  special features for different objects
+
+  dangers etc.
