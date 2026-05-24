@@ -77,7 +77,7 @@ def main():
 
         elif state == 'game' and game_objects:
             update_game(game_objects, delta_time)
-            if game_objects['player'].fuel <= 0:
+            if game_objects['player'].fuel <= 0 or game_objects['player'].health <= 0:
                 state = 'start_menu'
                 game_objects = None
             else:
@@ -97,9 +97,11 @@ def initialize_game():
     
     background = engine.Background(bg_img, WIN_WIDTH, WIN_HEIGHT)
     object_types = [
-        (entities.dfSpaceObject, 0.5),  # 50%
-        (entities.planet, 0.2),         # 20%
-        (entities.asteriod, 0.3)        # 30%
+        (entities.dfSpaceObject, 0.30),  # 30%
+        (entities.planet, 0.18),          # 18%
+        (entities.asteriod, 0.23),       # 23%
+        (entities.EnemyShip, 0.22),      # 22%
+        (entities.BlackHole, 0.07)        # 7%
     ]
     world = engine.WorldManager(2000, seed, object_types)
     minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
@@ -113,7 +115,8 @@ def initialize_game():
         'world': world,
         'minimap': minimap,
         'gravity': gravity,
-        'collision_checker': collision_checker
+        'collision_checker': collision_checker,
+        'game_time': 0.0
     }
 
 def update_game(game_objects, delta_time):
@@ -130,6 +133,7 @@ def update_game(game_objects, delta_time):
         unpress = None
 
     player.update(keys, unpress, delta_time)
+    game_objects['game_time'] += delta_time
     camera.update()
     world.update(player.world_x, player.world_y)
 
@@ -139,9 +143,18 @@ def update_game(game_objects, delta_time):
     refuel_rate = 100
     refuel_range = 50  # pocita se to od stredu objektu takze je to vlastne podobne velky jako ten objekt rn
     player.is_mining = False
-    
+
+    world.active_enemies = [e for e in world.active_enemies if e.active]
+
+    for enemy in world.active_enemies:
+        enemy.update(player, delta_time, game_objects['game_time'])
+        collision_checker.check_collision(player, enemy)
+
     for object_list in world.generated_chunks.values():
         for obj in object_list:
+            if obj.type == "enemy":
+                continue
+
             gravity.apply_to_player(obj, player)
             collision_checker.check_collision(player, obj)
             
@@ -165,7 +178,35 @@ def update_game(game_objects, delta_time):
                 else:
                     obj.is_mining = False
 
-    # collisions = collision_checker.get_collisions()
+    for enemy in world.active_enemies:
+        if not enemy.active:
+            continue
+        for target_list in world.generated_chunks.values():
+            for target in target_list:
+                if target is enemy or target.type not in ("planet", "asteroid"):
+                    continue
+                dx = enemy.world_x - target.world_x
+                dy = enemy.world_y - target.world_y
+                if dx * dx + dy * dy <= (enemy.radius + target.radius) ** 2:
+                    enemy.take_damage(1)
+                    break
+            if not enemy.active:
+                break
+
+    collisions = collision_checker.get_collisions()
+    for player_obj, other_obj in collisions:
+        if other_obj.type in ("planet", "asteroid", "enemy", "blackhole"):
+            if player.take_damage(other_obj.collision_damage):
+                dx = player.world_x - other_obj.world_x
+                dy = player.world_y - other_obj.world_y
+                dist = math.hypot(dx, dy)
+                if dist > 0:
+                    bounce_speed = 5
+                    player.vx = (dx / dist) * bounce_speed
+                    player.vy = (dy / dist) * bounce_speed
+                else:
+                    player.vx *= -1.5
+                    player.vy *= -1.5
 
 
 def draw_game(screen, game_objects):
@@ -197,6 +238,16 @@ def draw_game(screen, game_objects):
 
     credits_text = f"Credits: {int(player.credits)}"
     screen.blit(font.render(credits_text, True, (255, 215, 0)), (bar_x, bar_y + bar_height + 25))
+
+    health_ratio = player.health / player.health_max
+    health_width = 200
+    health_height = 12
+    health_x = bar_x
+    health_y = bar_y + bar_height + 50
+    pygame.draw.rect(screen, (80, 80, 80), (health_x, health_y, health_width, health_height))
+    pygame.draw.rect(screen, (255, 0, 0), (health_x, health_y, health_width * health_ratio, health_height))
+    pygame.draw.rect(screen, (255, 255, 255), (health_x, health_y, health_width, health_height), 2)
+    screen.blit(font.render(f"Health: {int(player.health)}/{int(player.health_max)}", True, (255, 255, 255)), (health_x, health_y + health_height + 3))
 
     if player.is_mining:
         mining_surf = pygame.font.SysFont(None, 30).render("Mining...", True, (255, 220, 50))

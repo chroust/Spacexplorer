@@ -1,4 +1,5 @@
 import pygame
+import math
 import utils
 import engine
 import entities
@@ -78,34 +79,39 @@ def run_test_grounds():
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
 
-    ship_img = utils.load_image("spaceship.png")
-    player = entities.Ship(ship_img)
+    ship_img, ship_mask = utils.load_image_with_mask("spaceship.png")
+    player = entities.Ship(ship_img, ship_mask)
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
-    object_types = [
-        # (entities.dfSpaceObject, 0.5),      nechci aby se mi tam nic automaticky spawnovalo, ale mam tu moznost
-        # (entities.planet, 0.2),
-        # (entities.asteriod, 0.3)
-    ]
-    world = engine.WorldManager(2000, "seedyseed", object_types)
-    minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
+    camera.follow(player)
 
-    config = Configure(player) 
+    world = engine.WorldManager(2000, "seedyseed", [])
+    minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
+    collision_checker = engine.CollisionChecker()
+
+    config = Configure(player)
     border = Border(BORDER_WIDTH, BORDER_HEIGHT)
     type_display = TypeDisplay()
     gravity = engine.Gravity(1.0)
 
-    # Object spawning
-    object_types = [entities.dfSpaceObject, entities.planet, entities.asteriod]
+    object_types = [
+        entities.dfSpaceObject,
+        entities.planet,
+        entities.asteriod,
+        entities.EnemyShip,
+        entities.BlackHole
+    ]
     current_type_index = 0
     spawned_objects = []
     type_display.update(object_types[current_type_index])
+    game_time = 0.0
 
     running = True
     while running:
+        delta_time = clock.tick(60) / 1000.0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     current_type_index = (current_type_index + 1) % len(object_types)
                     type_display.update(object_types[current_type_index])
@@ -113,39 +119,81 @@ def run_test_grounds():
 
                 elif event.key == pygame.K_s:
                     obj_class = object_types[current_type_index]
-                    if obj_class == entities.dfSpaceObject:
-                        new_obj = obj_class(0, 0, "test")
-                    elif obj_class == entities.planet:
-                        new_obj = obj_class(0, 0)
-                    elif obj_class == entities.asteriod:
-                        new_obj = obj_class(0, 0)
+                    spawn_x = player.world_x + 150
+                    spawn_y = player.world_y
+                    new_obj = obj_class(spawn_x, spawn_y)
                     spawned_objects.append(new_obj)
-                    print(f"Spawned {obj_class.__name__} at border center (0,0)")
+                    print(f"Spawned {obj_class.__name__} at ({spawn_x}, {spawn_y})")
 
                 elif event.key == pygame.K_c:
                     spawned_objects.clear()
                     print("Cleared all spawned objects")
 
-        clock.tick(60)
+                elif event.key == pygame.K_r:
+                    config = Configure(player)
+                    player.vx = 0
+                    player.vy = 0
+                    print("Player reset to test center")
 
         keys = pygame.key.get_pressed()
-        player.update(keys, False)
-        
-        for obj in spawned_objects:
-            gravity.apply_to_player(obj, player)
-        
-        screen.fill((0, 0, 0))
-        player.draw(screen, camera)
+        player.update(keys, None, delta_time)
+        game_time += delta_time
+        camera.update()
 
         for obj in spawned_objects:
+            if getattr(obj, 'type', None) == "enemy":
+                obj.update(player, delta_time, game_time)
+            if getattr(obj, 'type', None) == "blackhole":
+                pass
+            gravity.apply_to_player(obj, player)
+
+        world.active_enemies = [e for e in spawned_objects if getattr(e, 'type', None) == "enemy" and e.active]
+
+        for obj in spawned_objects:
+            if getattr(obj, 'type', None) == "enemy" and not obj.active:
+                continue
+            collision_checker.check_collision(player, obj)
+
+        collisions = collision_checker.get_collisions()
+        for player_obj, other_obj in collisions:
+            if other_obj.type in ("planet", "asteroid", "enemy", "blackhole"):
+                if player.take_damage(other_obj.collision_damage):
+                    dx = player.world_x - other_obj.world_x
+                    dy = player.world_y - other_obj.world_y
+                    dist = math.hypot(dx, dy)
+                    if dist > 0:
+                        bounce_speed = 5
+                        player.vx = (dx / dist) * bounce_speed
+                        player.vy = (dy / dist) * bounce_speed
+                    else:
+                        player.vx *= -1.5
+                        player.vy *= -1.5
+                if other_obj.type == "enemy":
+                    other_obj.take_damage(1)
+
+        screen.fill((0, 0, 0))
+        for obj in spawned_objects:
+            if getattr(obj, 'type', None) == "enemy" and not obj.active:
+                continue
             obj.draw(screen, camera)
 
+        player.draw(screen, camera)
         border.draw(screen, camera)
         border.touch(player)
         type_display.draw(screen)
 
+        font = pygame.font.Font(None, 24)
+        instructions = [
+            "T - cycle object type",
+            "S - spawn selected object near player",
+            "C - clear objects",
+            "R - reset player position"
+        ]
+        for idx, line in enumerate(instructions):
+            text = font.render(line, True, (255, 255, 255))
+            screen.blit(text, (10, 10 + idx * 22))
+
         pygame.display.flip()
-        clock.tick(180)
 
     pygame.quit()
 

@@ -60,14 +60,20 @@ class Minimap:
                 minimap_x = minimap_center_x + rel_x
                 minimap_y = minimap_center_y + rel_y
 
+                if (hasattr(obj, 'active') and not obj.active):
+                    continue
                 if (self.pos_x < minimap_x < self.pos_x + self.minimap_width and 
                     self.pos_y < minimap_y < self.pos_y + self.minimap_height):
+                    if obj.type == "blackhole":
+                        continue
                     if obj.type == "dfSpaceObject":
                         color = (0, 255, 0)  # green
                     elif obj.type == "planet":
                         color = (0, 100, 255)  # blue
                     elif obj.type == "asteroid":
                         color = (168, 104, 0)  # brown
+                    elif obj.type == "enemy":
+                        color = (240, 0, 0) # red
                     else:
                         color = (255, 255, 255)  # white for unknown
                     pygame.draw.circle(screen, color, (int(minimap_x), int(minimap_y)), max(1, obj.size * self.zoom))
@@ -83,6 +89,7 @@ class WorldManager:
         self.generated_chunks = {}
         self.world_seed = seed
         self.object_types = object_types
+        self.active_enemies = []
 
     def get_chunk_coords(self, wx, wy):
         return int(wx // self.chunk_size), int(wy // self.chunk_size)
@@ -111,6 +118,8 @@ class WorldManager:
                                 break
                         if not overlaps:
                             objects.append(new_obj)
+                            if isinstance(new_obj, entities.EnemyShip):
+                                self.active_enemies.append(new_obj)
                         break
         self.generated_chunks[(cx, cy)] = objects
 
@@ -126,7 +135,12 @@ class WorldManager:
             for y in range(cy - 1, cy + 2):
                 if (x, y) in self.generated_chunks:
                     for obj in self.generated_chunks[(x, y)]:
+                        if obj.type == "enemy":
+                            continue
                         obj.draw(screen, camera)
+        for enemy in self.active_enemies:
+            if enemy.active:
+                enemy.draw(screen, camera)
 
 
 class Gravity:
@@ -153,18 +167,25 @@ class CollisionChecker:
         self.collision_pairs = []
     
     def check_collision(self, sprite1, sprite2):
-        if sprite1.mask is None or sprite2.mask is None:
-            return False
+        # Prefer simple circle overlap for all entities with radius data.
+        if hasattr(sprite1, 'radius') and hasattr(sprite2, 'radius'):
+            dist_x = sprite1.world_x - sprite2.world_x
+            dist_y = sprite1.world_y - sprite2.world_y
+            distance_sq = dist_x * dist_x + dist_y * dist_y
+            radius_sum = sprite1.radius + sprite2.radius
+            if distance_sq <= radius_sum * radius_sum:
+                self.collision_pairs.append((sprite1, sprite2))
+                return True
 
-        offset_x = int(sprite1.world_x - sprite2.world_x)
-        offset_y = int(sprite1.world_y - sprite2.world_y)
+        # Fallback to mask-based collision if both masks are available.
+        if sprite1.mask is not None and sprite2.mask is not None:
+            offset_x = int(sprite1.world_x - sprite2.world_x)
+            offset_y = int(sprite1.world_y - sprite2.world_y)
+            collision_point = sprite1.mask.overlap(sprite2.mask, (offset_x, offset_y))
+            if collision_point is not None:
+                self.collision_pairs.append((sprite1, sprite2))
+                return True
 
-        collision_point = sprite1.mask.overlap(sprite2.mask, (offset_x, offset_y))
-        
-        if collision_point is not None:
-            self.collision_pairs.append((sprite1, sprite2))
-            return True
-        
         return False
     
     def get_collisions(self):
