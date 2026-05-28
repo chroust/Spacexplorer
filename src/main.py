@@ -88,7 +88,7 @@ def main():
     pygame.quit()
 
 def initialize_game():
-    ship_img, ship_mask = utils.load_image_with_mask("spaceship.png")
+    ship_img, ship_mask = utils.load_image_with_mask("spaceship_lightened.png")
     bg_img = utils.load_image("test_bg.jpg")
 
     player = entities.Ship(ship_img, ship_mask)
