@@ -89,7 +89,7 @@ def main():
 
 def initialize_game():
     ship_img, ship_mask = utils.load_image_with_mask("spaceship_lightened.png")
-    bg_img = utils.load_image("test_bg.jpg")
+    bg_img = utils.load_image("starfield.png")
 
     player = entities.Ship(ship_img, ship_mask)
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
@@ -154,6 +154,10 @@ def update_game(game_objects, delta_time):
         for obj in object_list:
             if obj.type == "enemy":
                 continue
+            
+            # Update blackhole animation
+            if obj.type == "blackhole" and obj.animation:
+                obj.animation.update(delta_time)
 
             gravity.apply_to_player(obj, player)
             collision_checker.check_collision(player, obj)

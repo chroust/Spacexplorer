@@ -99,7 +99,7 @@ class WorldManager:
         random.seed(f"{self.world_seed}_{cx}_{cy}")
         objects = []
         for _ in range(3):
-            if random.random() < 0.15:  # 15% sance (3 pokusy, realna sance je trochu mensi pac kdyby se mel spawnout v jinem objektu tak ho proste nespawnu}
+            if random.random() < 1:  # 15% sance (3 pokusy, realna sance je trochu mensi pac kdyby se mel spawnout v jinem objektu tak ho proste nespawnu}
                 obj_x = cx * self.chunk_size + random.randint(0, self.chunk_size)
                 obj_y = cy * self.chunk_size + random.randint(0, self.chunk_size)
                 rand = random.random()
