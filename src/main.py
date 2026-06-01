@@ -1,10 +1,14 @@
 import pygame
 import math
-import utils
-import entities
-import engine
-import menu
+from . import utils
+from . import entities
+from . import engine
+from . import menu
 
+""" pro runnuti:
+cd C:\Users\Uživatel\Documents\GitHub\Spacexplorer
+python -m src.main
+"""
 WIN_WIDTH, WIN_HEIGHT = 1280, 720
 
 seed = "seedyseed"

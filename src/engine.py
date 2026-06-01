@@ -1,6 +1,6 @@
 import pygame
 import random
-import entities
+from . import entities
 import math
 
 class Camera:
@@ -165,24 +165,37 @@ class Gravity:
 class CollisionChecker:
     def __init__(self):
         self.collision_pairs = []
-    
+
+    def _get_mask(self, sprite):
+        if hasattr(sprite, 'get_mask'):
+            return sprite.get_mask()
+        return getattr(sprite, 'mask', None)
+
+    def _mask_overlap(self, sprite1, sprite2):
+        mask1 = self._get_mask(sprite1)
+        mask2 = self._get_mask(sprite2)
+        if mask1 is None or mask2 is None:
+            return False
+
+        width1, height1 = mask1.get_size()
+        width2, height2 = mask2.get_size()
+        offset_x = int(round(sprite2.world_x - sprite1.world_x + (width1 - width2) / 2))
+        offset_y = int(round(sprite2.world_y - sprite1.world_y + (height1 - height2) / 2))
+        return mask1.overlap(mask2, (offset_x, offset_y)) is not None
+
     def check_collision(self, sprite1, sprite2):
-        # Prefer simple circle overlap for all entities with radius data.
+        # Prefer mask-based collision when both objects provide a shape.
+        if self._mask_overlap(sprite1, sprite2):
+            self.collision_pairs.append((sprite1, sprite2))
+            return True
+
+        # Fall back to simple circle overlap when masks are unavailable.
         if hasattr(sprite1, 'radius') and hasattr(sprite2, 'radius'):
             dist_x = sprite1.world_x - sprite2.world_x
             dist_y = sprite1.world_y - sprite2.world_y
             distance_sq = dist_x * dist_x + dist_y * dist_y
             radius_sum = sprite1.radius + sprite2.radius
             if distance_sq <= radius_sum * radius_sum:
-                self.collision_pairs.append((sprite1, sprite2))
-                return True
-
-        # Fallback to mask-based collision if both masks are available.
-        if sprite1.mask is not None and sprite2.mask is not None:
-            offset_x = int(sprite1.world_x - sprite2.world_x)
-            offset_y = int(sprite1.world_y - sprite2.world_y)
-            collision_point = sprite1.mask.overlap(sprite2.mask, (offset_x, offset_y))
-            if collision_point is not None:
                 self.collision_pairs.append((sprite1, sprite2))
                 return True
 

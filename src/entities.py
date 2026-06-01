@@ -1,7 +1,7 @@
 import pygame
 import math
 import random
-import utils
+from . import utils
 
 PLANET_SPRITES: list[str] = [
     "planets/red_planet.png",
@@ -32,7 +32,10 @@ class Ship:
         self.thrust = 0.25
         self.friction = 0.98
         self.image = image
-        self.mask = mask
+        self._base_mask = mask
+        self._mask_cache = None
+        self._mask_cache_frame = None
+        self._mask_cache_angle = None
         self.radius = max(image.get_width(), image.get_height()) / 2
         self.fuel_max = 1000.0
         self.fuel = self.fuel_max
@@ -99,6 +102,21 @@ class Ship:
         rotated = pygame.transform.rotate(draw_image, -self.angle - 90)
         screen_pos = camera.apply((self.world_x, self.world_y))
         screen.blit(rotated, rotated.get_rect(center=screen_pos))
+
+    def get_mask(self):
+        frame = self.animation.get_current_frame()
+        draw_image = frame if frame is not None else self.image
+        current_angle = self.angle
+        if (self._mask_cache is not None and
+            self._mask_cache_frame is draw_image and
+            self._mask_cache_angle == current_angle):
+            return self._mask_cache
+
+        rotated = pygame.transform.rotate(draw_image, -current_angle - 90)
+        self._mask_cache = pygame.mask.from_surface(rotated)
+        self._mask_cache_frame = draw_image
+        self._mask_cache_angle = current_angle
+        return self._mask_cache
 
 
 
@@ -202,6 +220,8 @@ class BlackHole:
         self.mask = mask
         self.collision_damage = 9999
         self.is_mining = False
+        self._mask_cache = None
+        self._mask_cache_frame_index = None
 
         try:
             frames = utils.load_spritesheet(spritesheet_name, self.FRAME_W, self.FRAME_H)
@@ -215,12 +235,30 @@ class BlackHole:
         except Exception:
             self.animation = None
 
+    def get_mask(self):
+        frame = self.animation.get_current_frame() if self.animation else None
+        if frame is None:
+            return self.mask
+
+        target_width = self.size * 2
+        target_height = int(round(target_width * frame.get_height() / frame.get_width()))
+        cache_key = (self.animation.current_frame, target_width, target_height)
+        if self._mask_cache is not None and self._mask_cache_frame_index == cache_key:
+            return self._mask_cache
+
+        scaled = pygame.transform.scale(frame, (target_width, target_height))
+        self._mask_cache = pygame.mask.from_surface(scaled)
+        self._mask_cache_frame_index = cache_key
+        return self._mask_cache
+
     def draw(self, screen: pygame.Surface, camera) -> None:
         pos = camera.apply((self.world_x, self.world_y))
         diam = self.size * 2
         frame = self.animation.get_current_frame() if self.animation else None
         if frame is not None:
-            scaled = pygame.transform.scale(frame, (diam, diam))
+            target_width = diam
+            target_height = int(round(diam * frame.get_height() / frame.get_width()))
+            scaled = pygame.transform.scale(frame, (target_width, target_height))
             screen.blit(scaled, scaled.get_rect(center=pos))
         else:
             pygame.draw.circle(screen, (10, 10, 10), pos, self.size)
@@ -250,6 +288,7 @@ class planet:
             self.image: pygame.Surface | None = pygame.transform.rotate(
                 scaled, random.randint(0, 359)
             )
+            self.mask = utils.create_mask_from_img(self.image)
         else:
             self.image = None
 
@@ -284,6 +323,7 @@ class asteriod:
             self.image: pygame.Surface | None = pygame.transform.rotate(
                 scaled, random.randint(0, 359)
             )
+            self.mask = utils.create_mask_from_img(self.image)
         else:
             self.image = None
 

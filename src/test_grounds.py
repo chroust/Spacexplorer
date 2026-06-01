@@ -1,9 +1,9 @@
 import pygame
 import math
-import utils
-import engine
-import entities
-from main import WIN_WIDTH, WIN_HEIGHT
+from . import utils
+from . import engine
+from . import entities
+from .main import WIN_WIDTH, WIN_HEIGHT
 
 BORDER_WIDTH = 1260
 BORDER_HEIGHT = 700
