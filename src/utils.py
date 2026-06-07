@@ -7,6 +7,106 @@ IMG_DIR = os.path.join(BASE_DIR, "img")
 
 _image_cache: dict[str, pygame.Surface] = {}
 
+# Audio caches
+_sfx_cache: dict[str, pygame.mixer.Sound] = {}
+
+
+def init_audio(frequency: int = 44100, size: int = -16, channels: int = 2, buffer: int = 512) -> None:
+    """Initialize the pygame mixer if not already initialized."""
+    try:
+        if not pygame.mixer.get_init():
+            pygame.mixer.init(frequency=frequency, size=size, channels=channels, buffer=buffer)
+    except Exception:
+        try:
+            pygame.mixer.init()
+        except Exception:
+            pass
+
+
+def _sound_path(name: str) -> str:
+    return os.path.join(IMG_DIR, "sound", name)
+
+
+def play_music(filename: str, volume: float = 0.5, loops: int = -1) -> None:
+    init_audio()
+    try:
+        pygame.mixer.music.load(_sound_path(filename))
+        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
+        pygame.mixer.music.play(loops)
+    except Exception:
+        pass
+
+
+def stop_music() -> None:
+    try:
+        pygame.mixer.music.stop()
+    except Exception:
+        pass
+
+
+def set_music_volume(volume: float) -> None:
+    try:
+        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
+    except Exception:
+        pass
+
+
+def get_music_volume() -> float:
+    try:
+        return float(pygame.mixer.music.get_volume())
+    except Exception:
+        return 0.0
+
+
+def load_sfx(name: str) -> pygame.mixer.Sound | None:
+    init_audio()
+    if name in _sfx_cache:
+        return _sfx_cache[name]
+    path = _sound_path(name)
+    if not os.path.exists(path):
+        return None
+    try:
+        snd = pygame.mixer.Sound(path)
+        _sfx_cache[name] = snd
+        return snd
+    except Exception:
+        return None
+
+
+def load_sfx_variant(names: list[str]) -> pygame.mixer.Sound | None:
+    for n in names:
+        snd = load_sfx(n)
+        if snd is not None:
+            return snd
+    return None
+
+
+_MUSIC_EXCLUDE_FILES = {
+    'engine_loop.ogg', 'engine_loop.wav',
+    'thrust.ogg', 'thrust.wav',
+    'ship_thrust.ogg', 'ship_thrust.wav'
+}
+
+
+def list_music_files() -> list[str]:
+    sound_dir = os.path.join(IMG_DIR, "sound")
+    if not os.path.isdir(sound_dir):
+        return []
+    files = []
+    for fn in os.listdir(sound_dir):
+        if fn.lower().endswith(('.ogg', '.mp3', '.wav')):
+            if fn.lower() in _MUSIC_EXCLUDE_FILES:
+                continue
+            files.append(fn)
+    return files
+
+
+def play_random_music(volume: float = 0.35, loops: int = -1) -> None:
+    music_files = list_music_files()
+    if not music_files:
+        return
+    play_music(random.choice(music_files), volume=volume, loops=loops)
+
 
 def load_image(name: str) -> pygame.Surface:
     if name not in _image_cache:

@@ -1,56 +1,129 @@
 # Spacexplorer
 
-Jednoduchá space exploration hra ve 2D
+Spacexplorer is a simple 2D space exploration game built with Python and Pygame.
 
-### requirements:
-- Python 3.8+
-- Pygame-ce (obsaženo v `requirements.txt`)
+## Overview
 
-### Setup:
+Explore a procedurally generated space world, collect resources, avoid hazards, and upgrade your ship. The game includes:
 
-1. Stáhni repo a jdi do složky:
+- Main gameplay loop with world generation and ship controls
+- Pause menu and upgrade system
+- Background music and sound effects
+- Modular Python code in `src/`
 
-cd Spacexplorer
+## Requirements
 
+- Python 3.8 or newer
+- `pygame-ce` (listed in `requirements.txt`)
 
-2. Nainstalovat dependence:
+## Setup
 
+1. Clone or download the repository.
+2. Open a terminal in the repository root:
+
+```powershell
+cd C:\Users\Uživatel\Documents\GitHub\Spacexplorer
+```
+
+3. Install dependencies:
+
+```powershell
 pip install -r requirements.txt
+```
 
+If the installation fails, install Pygame CE directly:
 
-Pokud nefunguje:
-
+```powershell
 pip install pygame-ce
+```
 
+## Running the game
 
-### Spuštění:
+From the repository root, run either:
 
-V main game:
-
+```powershell
 python src/main.py
+```
 
+or:
 
-V test_grounds (lze spawnovat objekty):
+```powershell
+python -m src.main
+```
 
+To run the test grounds scene:
+
+```powershell
+python src/test_grounds.py  ----- test grounds are not completed with all of the physics functions from the main game -------
+From the repository root, the recommended (preferred) way is to run the package as a module
+because it preserves package-relative imports:
+
+```powershell
+python -m src.main
+```
+
+Alternatively you can run the script directly:
+
+```powershell
+python src/main.py
+```
+
+To run the test grounds scene, recommended module form:
+
+```powershell
+python -m src.test_grounds
+```
+
+Or as a script:
+
+```powershell
 python src/test_grounds.py
+```
+```
 
+## Controls
 
-## Ovládání
+### Main game
+- `W` - thrust forward
+- `A` / `D` - rotate the ship
+- `TAB` - open/close upgrade menu
+- `ESC` - pause the game
+- `UP` / `DOWN` arrows - navigate menus
 
-**Hlavní hra:**
-- W - dopředu
-- A / D - otáčí lodí
-- TAB - toggle upgrade menu
-- ESC - pause
-- UP/DOWN ARROWS - choose menu options
+### Test grounds
+- `W` - thrust forward
+- `A` / `D` - rotate the ship
+- `T` - cycle spawnable objects
+- `S` - spawn the selected object at position `(0, 0)`
+- `C` - clear all spawned objects
 
-**Test grounds:** (nefunguje rn)
-- W - dopředu
-- A / D - otáčí lodi
-- T - switch mezi objekty k spawnování (je vidět v top middle který je vybarný)
-- S - spawn objektu na pozici (0,0)
-- C - smaže všechny spawnnuté objekty
+## Project structure
 
+- `src/main.py` - game loop and state management
+- `src/utils.py` - image loading, sound helper functions, audio management
+- `src/menu.py` - main menu, pause menu, upgrade menu
+- `src/engine.py` - world simulation, camera, minimap, physics
+- `src/entities.py` - ship, enemies, asteroids, planets, and game entities
+- `src/space.py` - additional background and space-specific classes
+- `src/img/` - images and sound assets
+- `docs/` - documentation sources
 
-Hra je ještě v průběhu vývoje.
+## Notes
+
+- Music is played during gameplay and stops when the game enters pause or menu screens. (kind of wrong, i just randomly choose another track to play from the beginning on unpause)
+- The project is still under development, so features and controls may change.
+
+## Music credits
+
+Background music tracks are included in `src/img/sound/` and credited to their creators below:
+
+- `Lost Souls`, `Cosmos` — Introspektro
+- `Offworld` — Downtown Binary
+- `Allude` — Voyage
+- `Transition Phase` — Release Topic
+- `Decay` — Lucy in Disguise
+
+## Acknowledgements
+
+This README was generated with assistance from an AI tool. (sorry not sorry tohle se mi uz nechce delat)
 

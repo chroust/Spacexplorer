@@ -1,4 +1,5 @@
 import pygame
+from . import utils
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -54,7 +55,7 @@ UPGRADES = [
 ]
 
 class Menu:
-    def __init__(self, screen_width, screen_height, title="Menu", options=None):
+    def __init__(self, screen_width, screen_height, title="Menu", options=None, background_image_name=None):
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.title = title
@@ -62,13 +63,23 @@ class Menu:
         self.selected_option = 0
         self.font = pygame.font.Font(None, 48)
         self.small_font = pygame.font.Font(None, 36)
+        self.background_image = None
+        if background_image_name:
+            try:
+                image = utils.load_image(background_image_name)
+                self.background_image = pygame.transform.scale(image, (screen_width, screen_height))
+            except Exception:
+                self.background_image = None
 
     def draw_text(self, screen, text, font, color, x, y):
         text_surface = font.render(text, True, color)
         screen.blit(text_surface, (x, y))
 
     def draw(self, screen):
-        screen.fill(BLACK)
+        if self.background_image is not None:
+            screen.blit(self.background_image, (0, 0))
+        else:
+            screen.fill(BLACK)
         title_width = self.font.size(self.title)[0]
         self.draw_text(screen, self.title, self.font, WHITE, self.screen_width // 2 - title_width // 2, self.screen_height // 4)
 
@@ -99,6 +110,41 @@ class Menu:
     def reset_selection(self):
         self.selected_option = 0
 
+
+class PauseMenu(Menu):
+    def __init__(self, screen_width, screen_height, title="Paused", options=None, initial_volume: float = 0.35):
+        # expected options list should include a 'Volume' entry where the slider appears
+        super().__init__(screen_width, screen_height, title, options)
+        self.volume = max(0.0, min(1.0, initial_volume))
+
+    def handle_input(self, event):
+        if event.type == pygame.KEYDOWN:
+            if self.options and self.options[self.selected_option].lower().startswith('volume'):
+                if event.key == pygame.K_LEFT:
+                    self.volume = max(0.0, self.volume - 0.05)
+                    utils.set_music_volume(self.volume)
+                    return None
+                elif event.key == pygame.K_RIGHT:
+                    self.volume = min(1.0, self.volume + 0.05)
+                    utils.set_music_volume(self.volume)
+                    return None
+                elif event.key == pygame.K_RETURN:
+                    return None
+        return super().handle_input(event)
+
+    def draw(self, screen):
+        display_options = []
+        for opt in self.options:
+            if opt.lower().startswith('volume'):
+                display_options.append(f"Volume: {int(self.volume * 100)}%")
+            else:
+                display_options.append(opt)
+
+        old_options = self.options
+        self.options = display_options
+        super().draw(screen)
+        self.options = old_options
+
 class UpgradeMenu:
     def __init__(self, screen_width, screen_height):
         self.screen_width  = screen_width
@@ -110,7 +156,7 @@ class UpgradeMenu:
         self.small_font = pygame.font.Font(None, 26)
         self.feedback_msg   = ""
         self.feedback_timer = 0.0
-        self.feedback_ok    = True          # True = success col, False = error col
+        self.feedback_ok    = True
 
     def handle_input(self, event, player):
         if event.type == pygame.KEYDOWN:

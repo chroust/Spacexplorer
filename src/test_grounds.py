@@ -1,9 +1,19 @@
 import pygame
 import math
-from . import utils
-from . import engine
-from . import entities
-from .main import WIN_WIDTH, WIN_HEIGHT
+
+# nejak mi nefungovaly importy snad tohle fixne
+try:
+    from . import utils
+    from . import engine
+    from . import entities
+    from .main import WIN_WIDTH, WIN_HEIGHT
+except Exception:
+    from src import utils
+    from src import engine
+    from src import entities
+    from src.main import WIN_WIDTH, WIN_HEIGHT
+
+# python -m src.test_grounds
 
 BORDER_WIDTH = 1260
 BORDER_HEIGHT = 700
@@ -76,10 +86,12 @@ class TypeDisplay:
 
 def run_test_grounds():
     pygame.init()
+    utils.init_audio()
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    pygame.display.set_caption("Spacexplorer Test Grounds")
     clock = pygame.time.Clock()
 
-    ship_img, ship_mask = utils.load_image_with_mask("spaceship.png")
+    ship_img, ship_mask = utils.load_image_with_mask("spaceship_lightened.png")
     player = entities.Ship(ship_img, ship_mask)
     camera = engine.Camera(WIN_WIDTH, WIN_HEIGHT)
     camera.follow(player)
@@ -143,8 +155,9 @@ def run_test_grounds():
         for obj in spawned_objects:
             if getattr(obj, 'type', None) == "enemy":
                 obj.update(player, delta_time, game_time)
-            if getattr(obj, 'type', None) == "blackhole":
-                pass
+            elif getattr(obj, 'type', None) == "blackhole":
+                if getattr(obj, 'animation', None):
+                    obj.animation.update(delta_time)
             gravity.apply_to_player(obj, player)
 
         world.active_enemies = [e for e in spawned_objects if getattr(e, 'type', None) == "enemy" and e.active]

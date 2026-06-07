@@ -1,14 +1,15 @@
 import pygame
 import math
+import random
 from . import utils
 from . import entities
 from . import engine
 from . import menu
 
-""" pro runnuti:
-cd C:\Users\Uživatel\Documents\GitHub\Spacexplorer
-python -m src.main
-"""
+# pro runnuti: 
+# cd C:\Users\Uživatel\Documents\GitHub\Spacexplorer
+# python -m src.main
+
 WIN_WIDTH, WIN_HEIGHT = 1280, 720
 
 seed = "seedyseed"
@@ -16,12 +17,16 @@ seed = "seedyseed"
 
 def main():
     pygame.init()
+    utils.init_audio()
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     pygame.display.set_caption("Space Game")
     clock = pygame.time.Clock()
 
-    start_menu = menu.Menu(WIN_WIDTH, WIN_HEIGHT, "Space Explorer", ['Start Game', 'Quit'])
-    pause_menu = menu.Menu(WIN_WIDTH, WIN_HEIGHT, "Paused", ['Resume', 'Restart', 'Quit to Menu', 'Quit Game'])
+    start_menu = menu.Menu(WIN_WIDTH, WIN_HEIGHT, "Space Explorer", ['Start Game', 'Quit'], background_image_name='menu_bg.png')
+    current_volume = utils.get_music_volume()
+    if current_volume <= 0.0:
+        current_volume = 0.35
+    pause_menu = menu.PauseMenu(WIN_WIDTH, WIN_HEIGHT, "Paused", ['Resume', 'Volume', 'Restart', 'Quit to Menu', 'Quit Game'], initial_volume=current_volume)
     upgrade_menu = menu.UpgradeMenu(WIN_WIDTH, WIN_HEIGHT)
 
     state = 'start_menu'
@@ -40,6 +45,10 @@ def main():
                 if choice == 'Start Game':
                     state = 'game'
                     game_objects = initialize_game()
+                    try:
+                        utils.play_random_music(volume=0.35)
+                    except Exception:
+                        pass
                 elif choice == 'Quit':
                     running = False
 
@@ -47,12 +56,21 @@ def main():
                 choice = pause_menu.handle_input(event)
                 if choice == 'Resume':
                     state = 'game'
+                    try:
+                        utils.play_random_music(volume=0.35)
+                    except Exception:
+                        pass
                 elif choice == 'Restart':
                     game_objects = initialize_game()
                     state = 'game'
+                    try:
+                        utils.play_random_music(volume=0.35)
+                    except Exception:
+                        pass
                 elif choice == 'Quit to Menu':
                     state = 'start_menu'
                     game_objects = None
+                    utils.stop_music()
                 elif choice == 'Quit Game':
                     running = False
 
@@ -65,6 +83,7 @@ def main():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     state = 'pause_menu'
                     pause_menu.reset_selection()
+                    utils.stop_music()
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
                     state = 'upgrade_menu'
 
@@ -84,6 +103,7 @@ def main():
             if game_objects['player'].fuel <= 0 or game_objects['player'].health <= 0:
                 state = 'start_menu'
                 game_objects = None
+                utils.stop_music()
             else:
                 draw_game(screen, game_objects)
 
@@ -111,6 +131,10 @@ def initialize_game():
     minimap = engine.Minimap(WIN_WIDTH, WIN_HEIGHT, ship_img)
     gravity = engine.Gravity(1.0)
     collision_checker = engine.CollisionChecker()
+    # pokusy o nalezeni soundu
+    movement_sfx = utils.load_sfx_variant([
+        'engine_loop.ogg', 'engine_loop.wav', 'thrust.ogg', 'thrust.wav', 'ship_thrust.ogg', 'ship_thrust.wav'
+    ])
 
     return {
         'player': player,
@@ -120,6 +144,8 @@ def initialize_game():
         'minimap': minimap,
         'gravity': gravity,
         'collision_checker': collision_checker,
+        'movement_sfx': movement_sfx,
+        'movement_channel_index': 1,
         'game_time': 0.0
     }
 
@@ -170,8 +196,12 @@ def update_game(game_objects, delta_time):
                 dx = obj.world_x - player.world_x
                 dy = obj.world_y - player.world_y
                 distance = math.sqrt(dx**2 + dy**2)
-                if distance <= refuel_range:
-                    player.refill_fuel(refuel_rate * delta_time)
+                if distance <= refuel_range and obj.fuel_remaining > 0:
+                    fuel_amount = refuel_rate * delta_time
+                    fuel_amount = min(fuel_amount, obj.fuel_remaining)
+                    player.refill_fuel(fuel_amount)
+                    obj.fuel_remaining -= fuel_amount
+                    player.heal(3.0 * delta_time)
                     obj.highlighted = True
                 else:
                     obj.highlighted = False
@@ -179,8 +209,11 @@ def update_game(game_objects, delta_time):
             elif hasattr(obj, 'mine_rate') and obj.mine_rate > 0:
                 dx = obj.world_x - player.world_x
                 dy = obj.world_y - player.world_y
-                if math.sqrt(dx**2 + dy**2) <= obj.mine_range:
-                    player.credits += obj.mine_rate * mining_multiplier * delta_time
+                if math.sqrt(dx**2 + dy**2) <= obj.mine_range and obj.ore_remaining > 0:
+                    ore_mined = obj.mine_rate * mining_multiplier * delta_time
+                    ore_mined = min(ore_mined, obj.ore_remaining)
+                    player.credits += ore_mined
+                    obj.ore_remaining -= ore_mined
                     player.is_mining = True
                     obj.is_mining = True
                 else:

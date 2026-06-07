@@ -177,19 +177,26 @@ class CollisionChecker:
         if mask1 is None or mask2 is None:
             return False
 
-        width1, height1 = mask1.get_size()
-        width2, height2 = mask2.get_size()
+        width1 = getattr(sprite1, 'width', mask1.get_size()[0])
+        height1 = getattr(sprite1, 'height', mask1.get_size()[1])
+        width2 = getattr(sprite2, 'width', mask2.get_size()[0])
+        height2 = getattr(sprite2, 'height', mask2.get_size()[1])
+        
         offset_x = int(round(sprite2.world_x - sprite1.world_x + (width1 - width2) / 2))
         offset_y = int(round(sprite2.world_y - sprite1.world_y + (height1 - height2) / 2))
         return mask1.overlap(mask2, (offset_x, offset_y)) is not None
 
     def check_collision(self, sprite1, sprite2):
-        # Prefer mask-based collision when both objects provide a shape.
-        if self._mask_overlap(sprite1, sprite2):
-            self.collision_pairs.append((sprite1, sprite2))
-            return True
+        # If both sprites have masks, pixel-perfect mask overlap.
+        mask1 = self._get_mask(sprite1)
+        mask2 = self._get_mask(sprite2)
+        if mask1 is not None and mask2 is not None:
+            if self._mask_overlap(sprite1, sprite2):
+                self.collision_pairs.append((sprite1, sprite2))
+                return True
+            return False
 
-        # Fall back to simple circle overlap when masks are unavailable.
+        # if one or both sprites don't have masks, simple ciricle overlap.
         if hasattr(sprite1, 'radius') and hasattr(sprite2, 'radius'):
             dist_x = sprite1.world_x - sprite2.world_x
             dist_y = sprite1.world_y - sprite2.world_y
