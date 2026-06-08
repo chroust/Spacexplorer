@@ -19,10 +19,10 @@ def main():
     pygame.init()
     utils.init_audio()
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    pygame.display.set_caption("Space Game")
+    pygame.display.set_caption("Spacexplorer")
     clock = pygame.time.Clock()
 
-    start_menu = menu.Menu(WIN_WIDTH, WIN_HEIGHT, "Space Explorer", ['Start Game', 'Quit'], background_image_name='menu_bg.png')
+    start_menu = menu.Menu(WIN_WIDTH, WIN_HEIGHT, "Spacexplorer", ['Start Game', 'Quit'], background_image_name='menu_bg.png')
     current_volume = utils.get_music_volume()
     if current_volume <= 0.0:
         current_volume = 0.35
